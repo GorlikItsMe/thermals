@@ -130,13 +130,11 @@ BarWidget {
     id: label
     anchors.centerIn: parent
     spacing: 2
-    font.family: root.bar ? root.bar.fontFamily : Style.font.family
-    font.pixelSize: Style.font.body
 
-    Text { text: "CPU "; color: root.labelColor; font: label.font }
-    Text { text: root.cpuTemp + "°"; color: root.tempColor(Number(root.cpuTemp)); font: label.font }
-    Text { text: "  GPU "; color: root.labelColor; font: label.font }
-    Text { text: root.gpuTemp + "°"; color: root.tempColor(Number(root.gpuTemp)); font: label.font }
+    Text { text: "CPU "; color: root.labelColor; font.family: label.font.family; font.pixelSize: label.font.pixelSize }
+    Text { text: root.cpuTemp + "°"; color: root.tempColor(Number(root.cpuTemp)); font.family: label.font.family; font.pixelSize: label.font.pixelSize }
+    Text { text: "  GPU "; color: root.labelColor; font.family: label.font.family; font.pixelSize: label.font.pixelSize }
+    Text { text: root.gpuTemp + "°"; color: root.tempColor(Number(root.gpuTemp)); font.family: label.font.family; font.pixelSize: label.font.pixelSize }
   }
 
 }
