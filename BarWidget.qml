@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Ui
+import qs.Commons
 
 BarWidget {
   id: root
@@ -29,6 +30,24 @@ BarWidget {
 
   function toggle() {
     if (panelLoader.item) panelLoader.item.toggle()
+  }
+
+  // Hottest of CPU/GPU so the bar label flames red as the system heats up.
+  function hottestTemp() {
+    var cpu = Number(root.cpuTemp)
+    var gpu = Number(root.gpuTemp)
+    var c = isNaN(cpu) ? -Infinity : cpu
+    var g = isNaN(gpu) ? -Infinity : gpu
+    return Math.max(c, g)
+  }
+
+  // Temperature tint shared with the panel: yellow 50–70 °C, red above.
+  function tempColor(temp) {
+    var normal = root.bar ? root.bar.barForeground : Color.foreground
+    if (typeof temp !== "number" || temp === -Infinity) return normal
+    if (temp >= 70) return Qt.red
+    if (temp >= 50) return Qt.yellow
+    return normal
   }
 
   function closeForPopoutSwitch() {
@@ -98,6 +117,7 @@ BarWidget {
     anchors.fill: parent
     bar: root.bar
     text: "CPU " + root.cpuTemp + "°  GPU " + root.gpuTemp + "°"
+    foreground: root.tempColor(root.hottestTemp())
     tooltipText: "Open Thermals"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
