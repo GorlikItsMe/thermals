@@ -5,6 +5,8 @@ with a click panel for CPU/GPU temps and fan speeds.
 
 ![Thermals bar widget](preview.png)
 
+![Thermals bar widget expanded](preview2.png)
+
 - Bar shows live `CPU 48°  GPU 39°` (slow 10s poll)
 - Click to open a panel with CPU temp, CPU fan, GPU temp, GPU fan (2s poll while open)
 - One persistent collector process streams readings — no per-tick process spawning
