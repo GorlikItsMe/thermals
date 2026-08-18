@@ -12,6 +12,18 @@ Panel {
   property var anchorItem: null
   property var hostWidget: null
 
+  // Rows without a real reading (e.g. no GPU temp, no fan exposed in sysfs)
+  // are dropped so the panel doesn't show "n/a" clutter.
+  readonly property var rows: {
+    var w = root.w
+    return [
+      { label: "CPU Temp", value: w && w.cpuTemp !== "-" ? w.cpuTemp + " °C" : "" },
+      { label: "CPU Fan", value: w && w.cpuFan !== "-" ? w.cpuFan + " RPM" : "" },
+      { label: "GPU Temp", value: w && w.gpuTemp !== "-" ? w.gpuTemp + " °C" : "" },
+      { label: "GPU Fan", value: w && w.gpuFan !== "-" ? w.gpuFan + " RPM" : "" }
+    ].filter(function(r) { return r.value !== "" })
+  }
+
   readonly property var w: hostWidget
 
   function open() {
@@ -59,12 +71,7 @@ Panel {
         }
 
         Repeater {
-          model: [
-            { label: "CPU Temp", value: root.w ? root.w.cpuTemp + " °C" : "-" },
-            { label: "CPU Fan", value: root.w && root.w.cpuFan !== "-" ? root.w.cpuFan + " RPM" : "n/a" },
-            { label: "GPU Temp", value: root.w ? root.w.gpuTemp + " °C" : "-" },
-            { label: "GPU Fan", value: root.w && root.w.gpuFan !== "-" ? root.w.gpuFan + " RPM" : "n/a" }
-          ]
+          model: root.rows
 
           delegate: RowLayout {
             required property var modelData
