@@ -51,6 +51,13 @@ done
 [ -z "$GPU_DEV" ] && [ -n "$(hwmon_by_name nvidia)" ] && GPU_DEV=$(hwmon_by_name nvidia)
 FAN_DEV=$(find_fan_dev)
 
+# NVIDIA on some laptops (Optimus/PRIME without GFX hwmon) exposes no hwmon
+# device; fall back to nvidia-smi which reads the driver directly.
+NVIDIA_FALLBACK=""
+if [ -z "$GPU_DEV" ] && command -v nvidia-smi >/dev/null 2>&1; then
+  NVIDIA_FALLBACK="1"
+fi
+
 snapshot() {
   local cpu_temp="-" gpu_temp="-" gpu_fan="-" cpu_fan="-"
 
@@ -59,6 +66,9 @@ snapshot() {
   if [ -n "$GPU_DEV" ]; then
     gpu_temp=$(read_temp "$GPU_DEV/temp1_input")
     [ -f "$GPU_DEV/fan1_input" ] && gpu_fan=$(read_rpm "$GPU_DEV/fan1_input")
+  elif [ -n "$NVIDIA_FALLBACK" ]; then
+    gpu_temp=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null | head -n1 | tr -dc '0-9')
+    [ -n "$gpu_temp" ] || gpu_temp="-"
   fi
 
   # fan1 = CPU_FAN header on super-IO chips; else first non-GPU fan found.
