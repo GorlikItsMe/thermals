@@ -42,11 +42,15 @@ BarWidget {
   }
 
   // Temperature tint shared with the panel: yellow 50–70 °C, red above.
+  // Explicit hex colors — Qt.red/Qt.yellow render black in this shell.
+  readonly property color tempYellow: "#f7c948"
+  readonly property color tempRed: "#f03e3e"
+
   function tempColor(temp) {
     var normal = root.bar ? root.bar.barForeground : Color.foreground
     if (typeof temp !== "number" || temp === -Infinity) return normal
-    if (temp >= 70) return Qt.red
-    if (temp >= 50) return Qt.yellow
+    if (temp >= 70) return root.tempRed
+    if (temp >= 50) return root.tempYellow
     return normal
   }
 

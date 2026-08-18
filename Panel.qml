@@ -28,10 +28,14 @@ Panel {
   readonly property var w: hostWidget
 
   // Temperature tint: yellow 50–70 °C, red above 70 °C.
+  // Explicit hex colors — Qt.red/Qt.yellow render black in this shell.
+  readonly property color tempYellow: "#f7c948"
+  readonly property color tempRed: "#f03e3e"
+
   function tempColor(temp) {
     if (typeof temp !== "number") return root.barForeground
-    if (temp >= 70) return Qt.red
-    if (temp >= 50) return Qt.yellow
+    if (temp >= 70) return root.tempRed
+    if (temp >= 50) return root.tempYellow
     return root.barForeground
   }
 
