@@ -36,13 +36,14 @@ BarWidget {
   // Explicit hex colors — Qt.red/Qt.yellow render black in this shell.
   readonly property color tempYellow: "#f7c948"
   readonly property color tempRed: "#f03e3e"
+  // Neutral color for the "CPU"/"GPU" label text.
+  readonly property color labelColor: root.bar ? root.bar.barForeground : Color.foreground
 
   function tempColor(temp) {
-    var normal = root.bar ? root.bar.barForeground : Color.foreground
-    if (typeof temp !== "number" || temp === -Infinity) return normal
+    if (typeof temp !== "number" || isNaN(temp)) return root.labelColor
     if (temp >= 70) return root.tempRed
     if (temp >= 50) return root.tempYellow
-    return normal
+    return root.labelColor
   }
 
   function closeForPopoutSwitch() {
@@ -58,6 +59,9 @@ BarWidget {
 
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
+  // Make the slot wide enough for the segmented label (button text is hidden).
+  width: label.implicitWidth + Style.space(17)
+  height: button.implicitHeight
 
   onBarChanged: injectPanel()
 
@@ -107,23 +111,32 @@ BarWidget {
     }
   }
 
-  // Rich text: only the reading (e.g. 65°) is tinted; "CPU"/"GPU" labels stay
-  // in the bar's normal foreground.
-  readonly property string labelText: {
-    var cpu = root.tempColor(Number(root.cpuTemp))
-    var gpu = root.tempColor(Number(root.gpuTemp))
-    return 'CPU <span style="color:' + cpu + '">' + root.cpuTemp + '°</span>' +
-           '  GPU <span style="color:' + gpu + '">' + root.gpuTemp + '°</span>'
-  }
+  readonly property string labelText: root.cpuTemp + "  " + root.gpuTemp
 
   WidgetButton {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.labelText
+    labelVisible: false
+    hasVisualContent: true
     tooltipText: "Open Thermals"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
     }
   }
+
+  // Segmented label so only the readings are tinted, not the CPU/GPU names.
+  Row {
+    id: label
+    anchors.centerIn: parent
+    spacing: 2
+    font.family: root.bar ? root.bar.fontFamily : Style.font.family
+    font.pixelSize: Style.font.body
+
+    Text { text: "CPU "; color: root.labelColor; font: label.font }
+    Text { text: root.cpuTemp + "°"; color: root.tempColor(Number(root.cpuTemp)); font: label.font }
+    Text { text: "  GPU "; color: root.labelColor; font: label.font }
+    Text { text: root.gpuTemp + "°"; color: root.tempColor(Number(root.gpuTemp)); font: label.font }
+  }
+
 }
