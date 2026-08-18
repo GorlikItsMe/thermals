@@ -13,18 +13,27 @@ Panel {
   property var hostWidget: null
 
   // Rows without a real reading (e.g. no GPU temp, no fan exposed in sysfs)
-  // are dropped so the panel doesn't show "n/a" clutter.
+  // are dropped so the panel doesn't show "n/a" clutter. `temp` holds a
+  // numeric value (or null) for the color tint.
   readonly property var rows: {
     var w = root.w
     return [
-      { label: "CPU Temp", value: w && w.cpuTemp !== "-" ? w.cpuTemp + " °C" : "" },
-      { label: "CPU Fan", value: w && w.cpuFan !== "-" ? w.cpuFan + " RPM" : "" },
-      { label: "GPU Temp", value: w && w.gpuTemp !== "-" ? w.gpuTemp + " °C" : "" },
-      { label: "GPU Fan", value: w && w.gpuFan !== "-" ? w.gpuFan + " RPM" : "" }
+      { label: "CPU Temp", value: w && w.cpuTemp !== "-" ? w.cpuTemp + " °C" : "", temp: w && w.cpuTemp !== "-" ? Number(w.cpuTemp) : null },
+      { label: "CPU Fan", value: w && w.cpuFan !== "-" ? w.cpuFan + " RPM" : "", temp: null },
+      { label: "GPU Temp", value: w && w.gpuTemp !== "-" ? w.gpuTemp + " °C" : "", temp: w && w.gpuTemp !== "-" ? Number(w.gpuTemp) : null },
+      { label: "GPU Fan", value: w && w.gpuFan !== "-" ? w.gpuFan + " RPM" : "", temp: null }
     ].filter(function(r) { return r.value !== "" })
   }
 
   readonly property var w: hostWidget
+
+  // Temperature tint: yellow 50–70 °C, red above 70 °C.
+  function tempColor(temp) {
+    if (typeof temp !== "number") return root.barForeground
+    if (temp >= 70) return Color.red
+    if (temp >= 50) return Color.yellow
+    return root.barForeground
+  }
 
   function open() {
     root.controller.show()
@@ -89,7 +98,7 @@ Panel {
 
             Text {
               text: parent.modelData.value
-              color: root.barForeground
+              color: root.tempColor(parent.modelData.temp)
               font.family: root.bar ? root.bar.fontFamily : Style.font.family
               font.pixelSize: Style.font.body
               font.bold: true
