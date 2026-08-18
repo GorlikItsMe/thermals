@@ -111,30 +111,36 @@ BarWidget {
     }
   }
 
-  readonly property string labelText: root.cpuTemp + "  " + root.gpuTemp
+  // Label color for the plain "CPU"/"GPU" names (bar's normal foreground).
+  readonly property color labelColor: root.bar ? root.bar.barForeground : Color.foreground
 
   WidgetButton {
     id: button
     anchors.fill: parent
     bar: root.bar
+    text: ""
     labelVisible: false
     hasVisualContent: true
+    horizontalMargin: 8.75
+    verticalPadding: 8.75
+    implicitWidth: label.impliedWidth + Style.spaceReal(horizontalMargin) * 2
     tooltipText: "Open Thermals"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
     }
-  }
 
-  // Segmented label so only the readings are tinted, not the CPU/GPU names.
-  Row {
-    id: label
-    anchors.centerIn: parent
-    spacing: 2
+    // Separate Texts so only the readings are tinted; "CPU"/"GPU" stay plain.
+    Row {
+      id: label
+      anchors.centerIn: parent
+      spacing: Style.space(4)
+      property real impliedWidth: childrenRect.width
 
-    Text { text: "CPU "; color: root.labelColor; font.family: label.font.family; font.pixelSize: label.font.pixelSize }
-    Text { text: root.cpuTemp + "°"; color: root.tempColor(Number(root.cpuTemp)); font.family: label.font.family; font.pixelSize: label.font.pixelSize }
-    Text { text: "  GPU "; color: root.labelColor; font.family: label.font.family; font.pixelSize: label.font.pixelSize }
-    Text { text: root.gpuTemp + "°"; color: root.tempColor(Number(root.gpuTemp)); font.family: label.font.family; font.pixelSize: label.font.pixelSize }
+      Text { text: "CPU"; color: root.labelColor; font.family: button.fontFamily; font.pixelSize: button.fontSize }
+      Text { text: root.cpuTemp + "°"; color: root.tempColor(Number(root.cpuTemp)); font.family: button.fontFamily; font.pixelSize: button.fontSize; font.bold: true }
+      Text { text: "GPU"; color: root.labelColor; font.family: button.fontFamily; font.pixelSize: button.fontSize }
+      Text { text: root.gpuTemp + "°"; color: root.tempColor(Number(root.gpuTemp)); font.family: button.fontFamily; font.pixelSize: button.fontSize; font.bold: true }
+    }
   }
 
 }
