@@ -30,8 +30,8 @@ Panel {
   // Temperature tint: yellow 50–70 °C, red above 70 °C.
   function tempColor(temp) {
     if (typeof temp !== "number") return root.barForeground
-    if (temp >= 70) return Color.red
-    if (temp >= 50) return Color.yellow
+    if (temp >= 70) return Qt.red
+    if (temp >= 50) return Qt.yellow
     return root.barForeground
   }
 
