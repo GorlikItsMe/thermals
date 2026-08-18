@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "ak.thermals",
+  "name": "Thermals",
+  "version": "1.0.0",
+  "author": "ak127a",
+  "license": "MIT",
+  "description": "CPU/GPU temperatures and fan speeds in the Omarchy bar.",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "Thermals",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
