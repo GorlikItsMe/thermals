@@ -20,6 +20,21 @@ BarWidget {
   property string gpuFan: "-"
   property string cpuFan: "-"
 
+  // Temperature tints: yellow 50–70 °C, red above 70 °C.
+  // Explicit hex colors — Qt.red/Qt.yellow render black in this shell.
+  readonly property color tempYellow: "#f7c948"
+  readonly property color tempRed: "#f03e3e"
+
+  // Neutral color for the "CPU"/"GPU" label text (bar's normal foreground).
+  readonly property color labelColor: root.bar ? root.bar.barForeground : Color.foreground
+
+  function tempColor(temp) {
+    if (typeof temp !== "number" || isNaN(temp)) return root.labelColor
+    if (temp >= 70) return root.tempRed
+    if (temp >= 50) return root.tempYellow
+    return root.labelColor
+  }
+
   function open() {
     if (panelLoader.item) panelLoader.item.open()
   }
@@ -30,20 +45,6 @@ BarWidget {
 
   function toggle() {
     if (panelLoader.item) panelLoader.item.toggle()
-  }
-
-  // Temperature tint shared with the panel: yellow 50–70 °C, red above.
-  // Explicit hex colors — Qt.red/Qt.yellow render black in this shell.
-  readonly property color tempYellow: "#f7c948"
-  readonly property color tempRed: "#f03e3e"
-  // Neutral color for the "CPU"/"GPU" label text.
-  readonly property color labelColor: root.bar ? root.bar.barForeground : Color.foreground
-
-  function tempColor(temp) {
-    if (typeof temp !== "number" || isNaN(temp)) return root.labelColor
-    if (temp >= 70) return root.tempRed
-    if (temp >= 50) return root.tempYellow
-    return root.labelColor
   }
 
   function closeForPopoutSwitch() {
@@ -59,13 +60,8 @@ BarWidget {
 
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
-  // Make the slot wide enough for the segmented label (button text is hidden).
-  width: label.implicitWidth + Style.space(17)
-  height: button.implicitHeight
 
   onBarChanged: injectPanel()
-
-  Component.onCompleted: console.log("ak.thermals: BarWidget created")
 
   // One persistent collector process streams a line per interval. Slow while
   // the panel is closed (bar label only), fast while it is open.
@@ -111,9 +107,6 @@ BarWidget {
     }
   }
 
-  // Label color for the plain "CPU"/"GPU" names (bar's normal foreground).
-  readonly property color labelColor: root.bar ? root.bar.barForeground : Color.foreground
-
   WidgetButton {
     id: button
     anchors.fill: parent
@@ -123,7 +116,7 @@ BarWidget {
     hasVisualContent: true
     horizontalMargin: 8.75
     verticalPadding: 8.75
-    implicitWidth: label.impliedWidth + Style.spaceReal(horizontalMargin) * 2
+    implicitWidth: label.implicitWidth + Style.spaceReal(horizontalMargin) * 2
     tooltipText: "Open Thermals"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
@@ -134,7 +127,6 @@ BarWidget {
       id: label
       anchors.centerIn: parent
       spacing: Style.space(4)
-      property real impliedWidth: childrenRect.width
 
       Text { text: "CPU"; color: root.labelColor; font.family: button.fontFamily; font.pixelSize: button.fontSize }
       Text { text: root.cpuTemp + "°"; color: root.tempColor(Number(root.cpuTemp)); font.family: button.fontFamily; font.pixelSize: button.fontSize; font.bold: true }
@@ -142,5 +134,4 @@ BarWidget {
       Text { text: root.gpuTemp + "°"; color: root.tempColor(Number(root.gpuTemp)); font.family: button.fontFamily; font.pixelSize: button.fontSize; font.bold: true }
     }
   }
-
 }
