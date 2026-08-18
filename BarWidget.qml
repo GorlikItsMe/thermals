@@ -32,15 +32,6 @@ BarWidget {
     if (panelLoader.item) panelLoader.item.toggle()
   }
 
-  // Hottest of CPU/GPU so the bar label flames red as the system heats up.
-  function hottestTemp() {
-    var cpu = Number(root.cpuTemp)
-    var gpu = Number(root.gpuTemp)
-    var c = isNaN(cpu) ? -Infinity : cpu
-    var g = isNaN(gpu) ? -Infinity : gpu
-    return Math.max(c, g)
-  }
-
   // Temperature tint shared with the panel: yellow 50–70 °C, red above.
   // Explicit hex colors — Qt.red/Qt.yellow render black in this shell.
   readonly property color tempYellow: "#f7c948"
@@ -116,12 +107,20 @@ BarWidget {
     }
   }
 
+  // Rich text: only the reading (e.g. 65°) is tinted; "CPU"/"GPU" labels stay
+  // in the bar's normal foreground.
+  readonly property string labelText: {
+    var cpu = root.tempColor(Number(root.cpuTemp))
+    var gpu = root.tempColor(Number(root.gpuTemp))
+    return 'CPU <span style="color:' + cpu + '">' + root.cpuTemp + '°</span>' +
+           '  GPU <span style="color:' + gpu + '">' + root.gpuTemp + '°</span>'
+  }
+
   WidgetButton {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: "CPU " + root.cpuTemp + "°  GPU " + root.gpuTemp + "°"
-    foreground: root.tempColor(root.hottestTemp())
+    text: root.labelText
     tooltipText: "Open Thermals"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
