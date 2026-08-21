@@ -22,8 +22,18 @@ BarWidget {
 
   // Temperature tints: yellow 50–70 °C, red above 70 °C.
   // Explicit hex colors — Qt.red/Qt.yellow render black in this shell.
-  readonly property color tempYellow: "#f7c948"
-  readonly property color tempRed: "#f03e3e"
+  property color tempYellow: "#e0af68"
+  readonly property color tempRed: Color.urgent
+
+  FileView {
+    path: Quickshell.env("HOME") + "/.local/state/omarchy/current/theme/colors.toml"
+    watchChanges: true
+    printErrors: false
+    onLoaded: {
+      const match = String(text() || "").match(/^\s*yellow\s*=\s*["']?(#[0-9A-Fa-f]{6})/m)
+      if (match) root.tempYellow = match[1]
+    }
+  }
 
   // Neutral color for the "CPU"/"GPU" label text (bar's normal foreground).
   readonly property color labelColor: root.bar ? root.bar.barForeground : Color.foreground
